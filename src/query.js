@@ -32,7 +32,19 @@ var Query = function(appId, config) {
   this.endpoint = '/data/time-series'
 
   _.extend(this.config, config);
+
+  return this;
 };
+
+Query.prototype.date = function(start, end) {
+	this.config.start = toMomentObject( start );
+	this.config.end = toMomentObject(
+		((typeof end == 'undefined') ? start : end)
+	);
+
+	return this;
+}
+
 
 Query.prototype.assembleBody = function() {
   this.config.start = toMomentObject(this.config.start);
@@ -44,7 +56,7 @@ Query.prototype.assembleBody = function() {
     this.config.start = this.config.end;
   }
 
-  var timestampFormat = 'YYYY-MM-DD[T00:00:00.000Z]';
+  var timestampFormat = 'YYYY-MM-DD[T00:00:000Z]';
 
   if (!_.isArray(this.config.measures)) {
     this.config.measures = [this.config.measures];
