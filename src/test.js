@@ -9,5 +9,5 @@ var query = new Query('940584421', {
 });
 
 instance.request(query, function(error, result) {
-  console.log(result);
+  console.log(JSON.stringify(result));
 });

@@ -40,9 +40,6 @@ Itunes.prototype.executeRequest = function(task, callback) {
 
   var requestBody = query.assembleBody();
   var uri = url.parse(query.apiURL + query.endpoint);
-  // uri = url.parse('http://192.168.1.141:8000');
-  console.log(requestBody);
-  console.log(uri);
 
   request.post({
     uri: uri,
@@ -56,25 +53,12 @@ Itunes.prototype.executeRequest = function(task, callback) {
     },
     json: requestBody
   }, function(error, response, body) {
-    console.log('Error: ' + error + '\n\n');
-    console.log('Data fetched:\n\n ' + JSON.stringify(response) + '\n\n');
-    console.log('BODY:\n\n ' + JSON.stringify(response) + '\n\n');
-
-    if (error != null) {
-      body = null;
-    } else if (!response.hasOwnProperty('statusCode')) {
+    if (!response.hasOwnProperty('statusCode')) {
 			error = new Error('iTunes Connect is not responding. The service may be temporarily offline.');
 			body = null;
 		} else if (response.statusCode == 401) {
 			error = new Error('This request requires authentication. Please check your username and password.');
 			body = null;
-		} else {
-			try {
-				body = JSON.parse(body);
-			} catch (e) {
-				error = new Error('There was an error while parsing JSON.');
-				body = null;
-			}
 		}
 
     completed(error, body);
