@@ -118,7 +118,6 @@ Itunes.prototype.login = function(username, password) {
 						}
 					}
 				});
-
 			}
 		}
   });
@@ -131,10 +130,13 @@ Itunes.prototype.request = function(query, callback) {
   });
 };
 
+Itunes.prototype.getCookies = function() {
+  return this._cookies;
+};
+
 module.exports.Itunes = Itunes;
-module.exports.Query = query.Query;
 module.exports.AnalyticsQuery = query.AnalyticsQuery;
 module.exports.frequency = query.frequency;
 module.exports.measures = query.measures;
 module.exports.dimension = query.dimension;
-module.exports.reportType = query.reportType;
+module.exports.queryType = query.queryType;

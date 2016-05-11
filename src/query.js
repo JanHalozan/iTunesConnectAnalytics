@@ -25,7 +25,7 @@ module.exports.dimension = {
   websites: 'domainReferrer'
 }
 
-module.exports.reportType = {
+module.exports.queryType = {
   sources : 'sources',
   metrics : 'metrics'
 }
@@ -33,9 +33,10 @@ module.exports.reportType = {
 function AnalyticsQuery(type, appId, config) {
   var fn = Query.prototype[type];
   if (typeof fn !== 'function') {
-    throw new Error('Unknown report type: ' + type);
+    throw new Error('Unknown query type: ' + type);
   }
-	return new Query(appId, config)[type]();
+
+  return new Query(appId, config)[type]();
 }
 
 AnalyticsQuery.metrics = function(appId, config) {
@@ -52,8 +53,7 @@ var Query = function(appId, config) {
     end: moment(),
     group: null,
     frequency: 'DAY',
-    dimensionFilters: [],
-    limit: 100
+    dimensionFilters: []
   };
 
   this.adamId = appId;
@@ -69,19 +69,22 @@ var Query = function(appId, config) {
 
 Query.prototype.metrics = function() {
 	this.endpoint = '/data/time-series';
+  delete this.config['limit']
+
   return this;
 }
 
 Query.prototype.sources = function() {
 	this.endpoint = '/data/sources/list';
+  this.config.limit = 100;
+
 	return this;
 }
 
 Query.prototype.date = function(start, end) {
-	this.config.start = toMomentObject( start );
-	this.config.end = toMomentObject(
-		((typeof end == 'undefined') ? start : end)
-	);
+	this.config.start = toMomentObject(start);
+  end = (typeof end == 'undefined') ? start : end;
+	this.config.end = toMomentObject(end);
 
 	return this;
 }
@@ -122,14 +125,16 @@ Query.prototype.assembleBody = function() {
     ],
     dimensionFilters: this.config.dimensionFilters,
     measures: this.config.measures,
-    dimension: this.config.dimension,
-    limit: this.config.limit
+    dimension: this.config.dimension
   };
+
+  if (this.config.limit !== 'undefined') {
+    body.limit = this.config.limit;
+  }
 
   return body;
 };
 
-module.exports.Query = Query;
 module.exports.AnalyticsQuery = AnalyticsQuery;
 
 function toMomentObject(date) {
