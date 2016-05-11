@@ -25,13 +25,19 @@ module.exports.dimension = {
   websites: 'domainReferrer'
 }
 
+module.exports.reportType = {
+  sources : 'sources',
+  metrics : 'metrics'
+}
+
 function Report(type, appId, config) {
   var fn = Query.prototype[type];
-  if(typeof fn !== 'function'){
-    throw new Error('Unknotn Report type: ' + type);
+  if (typeof fn !== 'function') {
+    throw new Error('Unknown report type: ' + type);
   }
 	return new Query(appId, config)[type]();
 }
+
 
 Report.metrics = function(appId, config) {
 	return new Query(appId, config).metrics();
@@ -60,7 +66,7 @@ var Query = function(appId, config) {
 
 Query.prototype.metrics = function() {
 	this.endpoint 	= '/data/time-series';
-	return this;
+  return this;
 }
 
 Query.prototype.sources = function() {

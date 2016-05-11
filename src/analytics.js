@@ -137,3 +137,4 @@ module.exports.Report = query.Report;
 module.exports.frequency = query.frequency;
 module.exports.measures = query.measures;
 module.exports.dimension = query.dimension;
+module.exports.reportType = query.reportType;
