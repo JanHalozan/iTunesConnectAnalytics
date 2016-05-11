@@ -133,5 +133,7 @@ Itunes.prototype.request = function(query, callback) {
 
 module.exports.Itunes = Itunes;
 module.exports.Query = query.Query;
+module.exports.Report = query.Report;
 module.exports.frequency = query.frequency;
 module.exports.measures = query.measures;
+module.exports.dimension = query.dimension;
