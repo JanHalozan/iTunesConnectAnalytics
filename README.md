@@ -101,6 +101,39 @@ var query = new AnalyticsQuery.sources(appId, {
 }).time(1, 'days');
 ```
 
+#### Some other examples
+
+```js
+// Get App Store Views for last 7 days by website sources
+var query = AnalyticsQuery.sources('940584421', {
+  measures:  itc.measures.pageViews,
+  dimension: itc.dimension.websites
+}).time(7,itc.frequency.day);
+
+instance.request(query, function(error, result) {
+  console.log(JSON.stringify(result));
+});
+
+// Get installs for each day in date range 2016-04-10 to 2016-05-10
+var query = AnalyticsQuery.metrics('940584421', {
+  measures:  itc.measures.installs,
+}).date('2016-04-10','2016-05-10');
+
+instance.request(query, function(error, result) {
+  console.log(JSON.stringify(result));
+});
+
+// Get sessions for each day in last month
+var query = AnalyticsQuery.metrics('940584421', {
+  measures:  itc.measures.sessions,
+}).time(1,itc.frequency.month);
+
+
+instance.request(query, function(error, result) {
+  console.log(JSON.stringify(result));
+});
+```
+
 ## TODO
 
 - More examples
