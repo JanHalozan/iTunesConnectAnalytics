@@ -70,6 +70,7 @@ var Query = function(appId, config) {
 Query.prototype.metrics = function() {
   this.endpoint = '/data/time-series';
   delete this.config['limit']
+  delete this.config['dimension']
 
   return this;
 }
@@ -77,6 +78,7 @@ Query.prototype.metrics = function() {
 Query.prototype.sources = function() {
   this.endpoint = '/data/sources/list';
   this.config.limit = 100;
+  this.config.dimension = 'domainReferrer';
 
   return this;
 }
@@ -124,9 +126,12 @@ Query.prototype.assembleBody = function() {
       this.adamId
     ],
     dimensionFilters: this.config.dimensionFilters,
-    measures: this.config.measures,
-    dimension: this.config.dimension
+    measures: this.config.measures
   };
+
+  if (this.config.dimension !== 'undefined') {
+    body.dimension = this.config.dimension;
+  }
 
   if (this.config.limit !== 'undefined') {
     body.limit = this.config.limit;
