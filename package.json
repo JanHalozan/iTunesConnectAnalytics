@@ -1,11 +1,26 @@
 {
   "name": "iTunesConnectAnalytics",
-  "private": true,
-  "version": "0.1.0",
   "description": "Apple iTunesConnect analytics API client.",
-  "main": "src/main.js",
-  "author": "Jan Haložan",
-  "license": "ISC",
+  "keywords": [
+    "itunes",
+    "itunesconnect",
+    "apple",
+    "analytics",
+    "api",
+    "client"
+  ],
+  "author": "Jan Halozan <j.halozan.services@gmail.com>",
+  "contributors": [
+    "Marko Cungl"
+  ],
+  "version": "0.1.0",
+  "main": "src/analytics.js",
+  "files": [
+    "README.md",
+    "LICENSE",
+    "src/"
+  ],
+  "license": "CC BY",
   "dependencies": {
     "async": "^2.0.0-rc.4",
     "moment": "^2.13.0",
