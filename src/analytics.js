@@ -19,6 +19,7 @@ var Itunes = function(username, password, options) {
 
   _.extend(this.options, options);
 
+  // Private
   this._cookies = [];
   this._queue = async.queue(
     this.executeRequest.bind(this),

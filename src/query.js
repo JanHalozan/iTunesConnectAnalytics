@@ -40,11 +40,11 @@ function AnalyticsQuery(type, appId, config) {
 }
 
 AnalyticsQuery.metrics = function(appId, config) {
-	return new Query(appId, config).metrics();
+  return new Query(appId, config).metrics();
 }
 
 AnalyticsQuery.sources = function(appId, config) {
-	return new Query(appId, config).sources();
+  return new Query(appId, config).sources();
 }
 
 var Query = function(appId, config) {
@@ -61,24 +61,24 @@ var Query = function(appId, config) {
 
   _.extend(this.config, config);
 
-  // Private options
+  // Private
   this._time = null;
 
   return this;
 };
 
 Query.prototype.metrics = function() {
-	this.endpoint = '/data/time-series';
+  this.endpoint = '/data/time-series';
   delete this.config['limit']
 
   return this;
 }
 
 Query.prototype.sources = function() {
-	this.endpoint = '/data/sources/list';
+  this.endpoint = '/data/sources/list';
   this.config.limit = 100;
 
-	return this;
+  return this;
 }
 
 Query.prototype.date = function(start, end) {
