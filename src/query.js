@@ -30,7 +30,7 @@ module.exports.reportType = {
   metrics : 'metrics'
 }
 
-function Report(type, appId, config) {
+function AnalyticsQuery(type, appId, config) {
   var fn = Query.prototype[type];
   if (typeof fn !== 'function') {
     throw new Error('Unknown report type: ' + type);
@@ -38,11 +38,11 @@ function Report(type, appId, config) {
 	return new Query(appId, config)[type]();
 }
 
-Report.metrics = function(appId, config) {
+AnalyticsQuery.metrics = function(appId, config) {
 	return new Query(appId, config).metrics();
 }
 
-Report.sources = function(appId, config) {
+AnalyticsQuery.sources = function(appId, config) {
 	return new Query(appId, config).sources();
 }
 
@@ -130,7 +130,7 @@ Query.prototype.assembleBody = function() {
 };
 
 module.exports.Query = Query;
-module.exports.Report = Report;
+module.exports.AnalyticsQuery = AnalyticsQuery;
 
 function toMomentObject(date) {
   if (moment.isMoment(date))
