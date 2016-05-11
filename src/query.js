@@ -38,7 +38,6 @@ function Report(type, appId, config) {
 	return new Query(appId, config)[type]();
 }
 
-
 Report.metrics = function(appId, config) {
 	return new Query(appId, config).metrics();
 }
@@ -53,7 +52,8 @@ var Query = function(appId, config) {
     end: moment(),
     group: null,
     frequency: 'DAY',
-    dimensionFilters: []
+    dimensionFilters: [],
+    limit: 100
   };
 
   this.adamId = appId;
@@ -61,16 +61,19 @@ var Query = function(appId, config) {
 
   _.extend(this.config, config);
 
+  // Private options
+  this._time = null;
+
   return this;
 };
 
 Query.prototype.metrics = function() {
-	this.endpoint 	= '/data/time-series';
+	this.endpoint = '/data/time-series';
   return this;
 }
 
 Query.prototype.sources = function() {
-	this.endpoint 	= '/data/sources/list';
+	this.endpoint = '/data/sources/list';
 	return this;
 }
 
@@ -83,12 +86,22 @@ Query.prototype.date = function(start, end) {
 	return this;
 }
 
+Query.prototype.time = function(value, unit){
+  this._time = [value, unit];
+  return this;
+}
+
+Query.prototype.limit = function(limit){
+  this.config.limit = limit;
+  return this;
+}
+
 Query.prototype.assembleBody = function() {
   this.config.start = toMomentObject(this.config.start);
   this.config.end = toMomentObject(this.config.end);
 
   if (this.config.end.diff(this.config.start, 'days') === 0 && _.isArray(this._time)) {
-    this.config.start = this.config.start.subtract(this._time[0], this._time[0]);
+    this.config.start = this.config.start.subtract(this._time[0], this._time[1]);
   } else if (this.config.end.diff(this.config.start) < 0) {
     this.config.start = this.config.end;
   }
@@ -110,10 +123,9 @@ Query.prototype.assembleBody = function() {
     dimensionFilters: this.config.dimensionFilters,
     measures: this.config.measures,
     dimension: this.config.dimension,
-    limit: 200
+    limit: this.config.limit
   };
 
-console.log(body);
   return body;
 };
 
