@@ -19,6 +19,7 @@ var Itunes = function(username, password, options) {
 
   _.extend(this.options, options);
 
+  // Private
   this._cookies = [];
   this._queue = async.queue(
     this.executeRequest.bind(this),
@@ -118,7 +119,6 @@ Itunes.prototype.login = function(username, password) {
 						}
 					}
 				});
-
 			}
 		}
   });
@@ -131,7 +131,13 @@ Itunes.prototype.request = function(query, callback) {
   });
 };
 
+Itunes.prototype.getCookies = function() {
+  return this._cookies;
+};
+
 module.exports.Itunes = Itunes;
-module.exports.Query = query.Query;
+module.exports.AnalyticsQuery = query.AnalyticsQuery;
 module.exports.frequency = query.frequency;
 module.exports.measures = query.measures;
+module.exports.dimension = query.dimension;
+module.exports.queryType = query.queryType;

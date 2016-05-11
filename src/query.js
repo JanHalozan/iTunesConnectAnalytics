@@ -15,8 +15,37 @@ module.exports.measures = {
   pageViews: 'pageViewCount',
   activeDevices: 'activeDevices',
   crashes: 'crashes',
-  payingUsers: 'payingUsers'
+  payingUsers: 'payingUsers',
+  units: 'units',
+  sales: 'sales'
 };
+
+module.exports.dimension = {
+  campaigns: 'campaignId',
+  websites: 'domainReferrer'
+}
+
+module.exports.queryType = {
+  sources : 'sources',
+  metrics : 'metrics'
+}
+
+function AnalyticsQuery(type, appId, config) {
+  var fn = Query.prototype[type];
+  if (typeof fn !== 'function') {
+    throw new Error('Unknown query type: ' + type);
+  }
+
+  return new Query(appId, config)[type]();
+}
+
+AnalyticsQuery.metrics = function(appId, config) {
+  return new Query(appId, config).metrics();
+}
+
+AnalyticsQuery.sources = function(appId, config) {
+  return new Query(appId, config).sources();
+}
 
 var Query = function(appId, config) {
   this.config = {
@@ -29,29 +58,53 @@ var Query = function(appId, config) {
 
   this.adamId = appId;
   this.apiURL = 'https://analytics.itunes.apple.com/analytics/api/v1';
-  this.endpoint = '/data/time-series'
 
   _.extend(this.config, config);
+
+  // Private
+  this._time = null;
 
   return this;
 };
 
+Query.prototype.metrics = function() {
+  this.endpoint = '/data/time-series';
+  delete this.config['limit']
+
+  return this;
+}
+
+Query.prototype.sources = function() {
+  this.endpoint = '/data/sources/list';
+  this.config.limit = 100;
+
+  return this;
+}
+
 Query.prototype.date = function(start, end) {
-	this.config.start = toMomentObject( start );
-	this.config.end = toMomentObject(
-		((typeof end == 'undefined') ? start : end)
-	);
+	this.config.start = toMomentObject(start);
+  end = (typeof end == 'undefined') ? start : end;
+	this.config.end = toMomentObject(end);
 
 	return this;
 }
 
+Query.prototype.time = function(value, unit){
+  this._time = [value, unit];
+  return this;
+}
+
+Query.prototype.limit = function(limit){
+  this.config.limit = limit;
+  return this;
+}
 
 Query.prototype.assembleBody = function() {
   this.config.start = toMomentObject(this.config.start);
   this.config.end = toMomentObject(this.config.end);
 
   if (this.config.end.diff(this.config.start, 'days') === 0 && _.isArray(this._time)) {
-    this.config.start = this.config.start.subtract(this._time[0], this._time[0]);
+    this.config.start = this.config.start.subtract(this._time[0], this._time[1]);
   } else if (this.config.end.diff(this.config.start) < 0) {
     this.config.start = this.config.end;
   }
@@ -71,13 +124,18 @@ Query.prototype.assembleBody = function() {
       this.adamId
     ],
     dimensionFilters: this.config.dimensionFilters,
-    measures: this.config.measures
+    measures: this.config.measures,
+    dimension: this.config.dimension
   };
+
+  if (this.config.limit !== 'undefined') {
+    body.limit = this.config.limit;
+  }
 
   return body;
 };
 
-module.exports.Query = Query;
+module.exports.AnalyticsQuery = AnalyticsQuery;
 
 function toMomentObject(date) {
   if (moment.isMoment(date))
