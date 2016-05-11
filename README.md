@@ -22,7 +22,7 @@ var username = 'UNAME';
 var password = 'PASS';
 var appId = '12345'; //Found in My Apps -> App -> Apple ID
 
-var instance = new Itunes('UNAME', 'PASS', {
+var instance = new Itunes(username, password, {
   errorCallback: function(e) {
     console.log('Error logging in: ' + e);
   },
