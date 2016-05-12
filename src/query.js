@@ -144,14 +144,14 @@ module.exports.AnalyticsQuery = AnalyticsQuery;
 
 function toMomentObject(date) {
   if (moment.isMoment(date))
-		return date;
+  return date;
 
-	if (date instanceof Date)
-		return moment(date);
+  if (date instanceof Date)
+    return moment(date);
 
   var regex = new RegExp(/([0-9]{4})-([0-9]{2})-([0-9]{2})/);
-	if(_.isString(date) && !!(date.match(regex)))
-		return moment(date, "YYYY-MM-DD");
+  if(_.isString(date) && !!(date.match(regex)))
+    return moment(date, "YYYY-MM-DD");
 
-	throw new Error('Unknown date format. Please use Date() object or String() with format YYYY-MM-DD.');
+  throw new Error('Unknown date format. Please use Date() object or String() with format YYYY-MM-DD.');
 }

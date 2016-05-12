@@ -83,44 +83,44 @@ Itunes.prototype.login = function(username, password) {
   }, function(error, response, body) {
     var cookies = response ? response.headers['set-cookie'] : null;
 
-		if (error || !(cookies && cookies.length)) {
-			error = error || new Error('There was a problem with loading the login page cookies. Check login credentials.');
+    if (error || !(cookies && cookies.length)) {
+      error = error || new Error('There was a problem with loading the login page cookies. Check login credentials.');
       self.options.errorCallback(error);
-		} else {
-			//extract the account info cookie
-			var myAccount = /myacinfo=.+?;/.exec(cookies);
+    } else {
+      //extract the account info cookie
+      var myAccount = /myacinfo=.+?;/.exec(cookies);
 
-			if (myAccount == null || myAccount.length == 0) {
-				error = error || new Error('No account cookie :( Apple probably changed the login process');
+      if (myAccount == null || myAccount.length == 0) {
+        error = error || new Error('No account cookie :( Apple probably changed the login process');
         self.options.errorCallback(error);
-			} else {
-				request.get({
-					url 	: self.options.baseURL + "/WebObjects/iTunesConnect.woa",
-					followRedirect : false,	//We can't follow redirects, otherwise we will "miss" the itCtx cookie
-					headers	: {
-						'Cookie': myAccount[0]
-					},
-				}, function(error, response, body) {
-					cookies = response ? response.headers['set-cookie'] : null;
+      } else {
+        request.get({
+          url: self.options.baseURL + "/WebObjects/iTunesConnect.woa",
+          followRedirect: false,	//We can't follow redirects, otherwise we will "miss" the itCtx cookie
+          headers: {
+            'Cookie': myAccount[0]
+          },
+        }, function(error, response, body) {
+          cookies = response ? response.headers['set-cookie'] : null;
 
-					if (error || !(cookies && cookies.length)) {
-						error = error || new Error('There was a problem with loading the login page cookies.');
+          if (error || !(cookies && cookies.length)) {
+            error = error || new Error('There was a problem with loading the login page cookies.');
             self.options.errorCallback(error);
-					} else {
-						//extract the itCtx cookie
-						var itCtx = /itctx=.+?;/.exec(cookies);
-						if (itCtx == null || itCtx.length == 0) {
-							error = error || new Error('No itCtx cookie :( Apple probably changed the login process');
+          } else {
+            //extract the itCtx cookie
+            var itCtx = /itctx=.+?;/.exec(cookies);
+            if (itCtx == null || itCtx.length == 0) {
+              error = error || new Error('No itCtx cookie :( Apple probably changed the login process');
               self.options.errorCallback(error);
-						} else {
-							self._cookies = myAccount[0] + " " + itCtx[0];
-							self.options.successCallback(self._cookies);
-							self._queue.resume();
-						}
-					}
-				});
-			}
-		}
+            } else {
+              self._cookies = myAccount[0] + " " + itCtx[0];
+              self.options.successCallback(self._cookies);
+              self._queue.resume();
+            }
+          }
+        });
+      }
+    }
   });
 };
 
