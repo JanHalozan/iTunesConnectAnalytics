@@ -14,17 +14,25 @@
     "Marko Cungl"
   ],
   "version": "0.1.1",
+  "repository": "JanHalozan/iTunesConnectAnalytics",
   "main": "src/analytics.js",
   "files": [
     "README.md",
     "LICENSE",
     "src/"
   ],
+  "scripts": {
+    "pretest": "npm install",
+    "test": "./node_modules/nodeunit/bin/nodeunit ./test/itunesconnectanalytics.js"
+  },
   "license": "CC BY",
   "dependencies": {
     "async": "^2.0.0-rc.4",
     "moment": "^2.13.0",
     "request": "^2.72.0",
     "underscore": "^1.8.3"
+  },
+  "devDependencies": {
+    "nodeunit": "^0.9.1"
   }
 }
