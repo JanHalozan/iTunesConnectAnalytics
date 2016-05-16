@@ -137,7 +137,14 @@ Itunes.prototype.getApps = function(callback) {
   		} else if (response.statusCode == 401) {
   			error = new Error('This request requires authentication. Please check your username and password.');
   			body = null;
-  		}
+  		} else {
+        try {
+          body = JSON.parse(body);
+        } catch (e) {
+          error = new Error('Error parsing JSON');
+          body = null;
+        }
+      }
       callback(error, body);
     });
   });

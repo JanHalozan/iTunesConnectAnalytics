@@ -1,5 +1,6 @@
 var itca = require('./../src/analytics.js');
 var AnalyticsQuery = itca.AnalyticsQuery;
+var Itunes = itca.Itunes;
 
 exports.testMetricsQueryConfig = function(test) {
   var query = new AnalyticsQuery.metrics();
