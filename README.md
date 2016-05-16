@@ -11,7 +11,7 @@ Original idea taken from [node-itunesconnect](https://github.com/stoprocent/node
 
 ## Example usage
 
-Creating an instance and getting app units for the specified time interval.
+The usual boilerplate:
 
 ```js
 var itc = require('itunesconnectanalytics');
@@ -20,7 +20,7 @@ var AnalyticsQuery = itc.AnalyticsQuery;
 
 var username = 'UNAME';
 var password = 'PASS';
-var appId = '12345'; //Found in My Apps -> App -> Apple ID
+var appId = '12345'; //Found in My Apps -> App -> Apple ID or read below on getting the app id.
 
 var instance = new Itunes(username, password, {
   errorCallback: function(e) {
@@ -30,7 +30,19 @@ var instance = new Itunes(username, password, {
     console.log('Logged in');
   }
 });
+```
 
+Getting available apps. Useful for getting app IDs needed for later queries. The field you're interested in is `adamId`.
+
+```js
+instance.getApps(function(error, data) {
+  console.log(data);
+});
+```
+
+Creating an instance and getting app units for the specified time interval.
+
+```js
 var query = AnalyticsQuery.metrics(appId, {
   measures:  itc.measures.units,
 }).date('2016-04-10','2016-05-10');

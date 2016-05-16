@@ -44,14 +44,7 @@ Itunes.prototype.executeRequest = function(task, callback) {
 
   request.post({
     uri: uri,
-    headers: {
-      'Content-Type': 'application/json;charset=UTF-8',
-      'Accept': 'application/json, text/plain, */*',
-      'Origin': 'https://analytics.itunes.apple.com',
-      'X-Requested-By': 'analytics.itunes.apple.com',
-      'Referer': 'https://analytics.itunes.apple.com/',
-      'Cookie': this._cookies
-    },
+    headers: this.getHeaders(),
     json: requestBody
   }, function(error, response, body) {
     if (!response.hasOwnProperty('statusCode')) {
@@ -124,6 +117,32 @@ Itunes.prototype.login = function(username, password) {
   });
 };
 
+Itunes.prototype.getApps = function(callback) {
+  var self = this;
+  async.whilst(function() {
+    return self._queue.paused;
+  }, function(callback) {
+    setTimeout(function() {
+      callback(null);
+    }, 500);
+  }, function(error) {
+    let uri = 'https://analytics.itunes.apple.com/analytics/api/v1/app-info/app';
+    request.get({
+      uri: uri,
+      headers: self.getHeaders()
+    }, function(error, response, body) {
+      if (!response.hasOwnProperty('statusCode')) {
+  			error = new Error('iTunes Connect is not responding. The service may be temporarily offline.');
+  			body = null;
+  		} else if (response.statusCode == 401) {
+  			error = new Error('This request requires authentication. Please check your username and password.');
+  			body = null;
+  		}
+      callback(error, body);
+    });
+  });
+};
+
 Itunes.prototype.request = function(query, callback) {
   this._queue.push({
     query: query,
@@ -134,6 +153,17 @@ Itunes.prototype.request = function(query, callback) {
 Itunes.prototype.getCookies = function() {
   return this._cookies;
 };
+
+Itunes.prototype.getHeaders = function() {
+  return {
+    'Content-Type': 'application/json;charset=UTF-8',
+    'Accept': 'application/json, text/plain, */*',
+    'Origin': 'https://analytics.itunes.apple.com',
+    'X-Requested-By': 'analytics.itunes.apple.com',
+    'Referer': 'https://analytics.itunes.apple.com/',
+    'Cookie': this._cookies
+  };
+}
 
 module.exports.Itunes = Itunes;
 module.exports.AnalyticsQuery = query.AnalyticsQuery;
