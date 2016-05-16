@@ -153,7 +153,8 @@ Query.prototype.assembleBody = function() {
     ]
   };
 
-  var cfg = this.config;
+  var cfg = {};
+  _.extend(cfg, this.config);
   delete cfg.start;
   delete cfg.end;
 
