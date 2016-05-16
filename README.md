@@ -63,7 +63,7 @@ The `AnalyticsQuery` object is used to describe what kind of data should be retr
 
 Metrics are specified under `measures` key in query options. They can also be an array `metrics: [itc.measures.units, itc.measures.sales]`.
 
-Available metric types:
+Available metris:
 
 - installs
 - sessions
@@ -73,7 +73,7 @@ Available metric types:
 - payingUsers
 - units
 - sales
-
+- iap (in app purchases)
 
 #### Query types
 

@@ -17,7 +17,8 @@ module.exports.measures = {
   crashes: 'crashes',
   payingUsers: 'payingUsers',
   units: 'units',
-  sales: 'sales'
+  sales: 'sales',
+  iap: 'iap'
 };
 
 module.exports.dimension = {
