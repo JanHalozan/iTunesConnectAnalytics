@@ -126,7 +126,7 @@ Itunes.prototype.getApps = function(callback) {
       callback(null);
     }, 500);
   }, function(error) {
-    let uri = 'https://analytics.itunes.apple.com/analytics/api/v1/app-info/app';
+    var uri = 'https://analytics.itunes.apple.com/analytics/api/v1/app-info/app';
     request.get({
       uri: uri,
       headers: self.getHeaders()
