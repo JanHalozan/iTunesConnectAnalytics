@@ -13,7 +13,7 @@
   "contributors": [
     "Marko Cungl"
   ],
-  "version": "0.2.1",
+  "version": "0.2.2",
   "repository": "JanHalozan/iTunesConnectAnalytics",
   "main": "src/analytics.js",
   "files": [
