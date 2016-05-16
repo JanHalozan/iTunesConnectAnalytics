@@ -69,16 +69,43 @@ var Query = function(appId, config) {
 
 Query.prototype.metrics = function() {
   this.endpoint = '/data/time-series';
-  delete this.config['limit']
-  delete this.config['dimension']
+
+  var keys = ['limit', 'dimension'];
+  for (var i = 0; i < keys.length; ++i) {
+    var key = keys[i];
+    delete this.config[key];
+  }
+
+  var defaults = [
+    {key: 'group', value: null},
+    {key: 'dimensionFilters', value: []},
+  ];
+  for (var i = 0; i < defaults.length; ++i) {
+    var dflt = defaults[i];
+    if (this.config[dflt.key] === undefined)
+      this.config[dflt.key] = dflt.value;
+  }
 
   return this;
 }
 
 Query.prototype.sources = function() {
   this.endpoint = '/data/sources/list';
-  this.config.limit = 100;
-  this.config.dimension = 'domainReferrer';
+  var keys = ['limit', 'group', 'dimensionFilters'];
+  for (var i = 0; i < keys.length; ++i) {
+    var key = keys[i];
+    delete this.config[key];
+  }
+
+  var defaults = [
+    {key: 'limit', value: 200},
+    {key: 'dimension', value: 'domainReferrer'},
+  ];
+  for (var i = 0; i < defaults.length; ++i) {
+    var dflt = defaults[i];
+    if (this.config[dflt.key] === undefined)
+      this.config[dflt.key] = dflt.value;
+  }
 
   return this;
 }
@@ -120,21 +147,17 @@ Query.prototype.assembleBody = function() {
   var body = {
     startTime: this.config.start.format(timestampFormat),
     endTime: this.config.end.format(timestampFormat),
-    group: this.config.group,
-    frequency: this.config.frequency,
     adamId: [
       this.adamId
-    ],
-    dimensionFilters: this.config.dimensionFilters,
-    measures: this.config.measures
+    ]
   };
 
-  if (this.config.dimension !== 'undefined') {
-    body.dimension = this.config.dimension;
-  }
+  var cfg = this.config;
+  delete cfg.start;
+  delete cfg.end;
 
-  if (this.config.limit !== 'undefined') {
-    body.limit = this.config.limit;
+  for (var prop in cfg) {
+    body[prop] = cfg[prop];
   }
 
   return body;
