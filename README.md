@@ -38,7 +38,18 @@ Getting available apps. Useful for getting app IDs needed for later queries. The
 
 ```js
 instance.getApps(function(error, data) {
-  console.log(data);
+  console.log(JSON.stringify(data));
+});
+```
+
+Getting the time interval for which data is available. Use `dataEndDate` property of the `configuration` object to know which is the most recent date that iTunesConnect has data for (the last day or two usually become available with a certain delay). You can use this date when making requests to avoid getting 0 values for days which do not have data yet.
+
+```js
+instance.getSettings(function(error, data) {
+  // To get end date:
+  // var end = data.configuration.dataEndDate;
+
+  console.log(JSON.stringify(data));
 });
 ```
 
@@ -144,6 +155,12 @@ var query = AnalyticsQuery.metrics('940584421', {
 
 
 instance.request(query, function(error, result) {
+  console.log(JSON.stringify(result));
+});
+
+//Make an arbitrary GET request to the itunes connect API
+var url = 'https://analytics.itunes.apple.com/analytics/api/v1/settings/user-info'; //Get info about yourself :)
+instance.getAPIURL(url, function(error, result) {
   console.log(JSON.stringify(result));
 });
 ```

@@ -118,6 +118,23 @@ Itunes.prototype.login = function(username, password) {
 };
 
 Itunes.prototype.getApps = function(callback) {
+  var url = 'https://analytics.itunes.apple.com/analytics/api/v1/app-info/app';
+  this.getAPIURL(url, callback);
+};
+
+Itunes.prototype.getSettings = function(callback) {
+  var url = 'https://analytics.itunes.apple.com/analytics/api/v1/settings/all';
+  this.getAPIURL(url, callback);
+};
+
+Itunes.prototype.request = function(query, callback) {
+  this._queue.push({
+    query: query,
+    completed: callback
+  });
+};
+
+Itunes.prototype.getAPIURL = function(uri, callback) {
   var self = this;
   async.whilst(function() {
     return self._queue.paused;
@@ -126,7 +143,6 @@ Itunes.prototype.getApps = function(callback) {
       callback(null);
     }, 500);
   }, function(error) {
-    var uri = 'https://analytics.itunes.apple.com/analytics/api/v1/app-info/app';
     request.get({
       uri: uri,
       headers: self.getHeaders()
@@ -148,14 +164,7 @@ Itunes.prototype.getApps = function(callback) {
       callback(error, body);
     });
   });
-};
-
-Itunes.prototype.request = function(query, callback) {
-  this._queue.push({
-    query: query,
-    completed: callback
-  });
-};
+}
 
 Itunes.prototype.getCookies = function() {
   return this._cookies;
