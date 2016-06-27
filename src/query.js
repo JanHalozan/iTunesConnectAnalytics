@@ -18,7 +18,9 @@ module.exports.measures = {
   payingUsers: 'payingUsers',
   units: 'units',
   sales: 'sales',
-  iap: 'iap'
+  iap: 'iap',
+  impressions: 'impressionsTotal',
+  impressionsUnique: 'impressionsTotalUnique'
 };
 
 module.exports.dimension = {

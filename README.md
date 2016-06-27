@@ -38,7 +38,7 @@ Getting available apps. Useful for getting app IDs needed for later queries. The
 
 ```js
 instance.getApps(function(error, data) {
-  console.log(JSON.stringify(data));
+  console.log(JSON.stringify(data, null, 2));
 });
 ```
 
@@ -49,7 +49,7 @@ instance.getSettings(function(error, data) {
   // To get end date:
   // var end = data.configuration.dataEndDate;
 
-  console.log(JSON.stringify(data));
+  console.log(JSON.stringify(data, null, 2));
 });
 ```
 
@@ -61,7 +61,7 @@ var query = AnalyticsQuery.metrics(appId, {
 }).date('2016-04-10','2016-05-10');
 
 instance.request(query, function(error, result) {
-  console.log(JSON.stringify(result));
+  console.log(JSON.stringify(result, null, 2));
 });
 ```
 
@@ -87,6 +87,8 @@ Available metris:
 - units
 - sales
 - iap (in app purchases)
+- impressions
+- impressionsUnique
 
 #### Query types
 
@@ -136,7 +138,7 @@ var query = AnalyticsQuery.sources('940584421', {
 }).time(7,itc.frequency.day);
 
 instance.request(query, function(error, result) {
-  console.log(JSON.stringify(result));
+  console.log(JSON.stringify(result, null, 2));
 });
 
 // Get installs for each day in date range 2016-04-10 to 2016-05-10
@@ -145,7 +147,7 @@ var query = AnalyticsQuery.metrics('940584421', {
 }).date('2016-04-10','2016-05-10');
 
 instance.request(query, function(error, result) {
-  console.log(JSON.stringify(result));
+  console.log(JSON.stringify(result, null, 2));
 });
 
 // Get sessions for each day in last month
@@ -155,13 +157,13 @@ var query = AnalyticsQuery.metrics('940584421', {
 
 
 instance.request(query, function(error, result) {
-  console.log(JSON.stringify(result));
+  console.log(JSON.stringify(result, null, 2));
 });
 
 //Make an arbitrary GET request to the itunes connect API
 var url = 'https://analytics.itunes.apple.com/analytics/api/v1/settings/user-info'; //Get info about yourself :)
 instance.getAPIURL(url, function(error, result) {
-  console.log(JSON.stringify(result));
+  console.log(JSON.stringify(result, null, 2));
 });
 ```
 
