@@ -146,7 +146,7 @@ var query = new AnalyticsQuery.metrics(appId, {
 
 ##### Sources
 
-Metrics query is used to retrieve data under the __Sources__ section in analytics.
+Sources query is used to retrieve data under the __Sources__ section in analytics.
 
 From sources you can retrieve top websites or top campaigns. This can be specified using the `dimension` setting in options.
 
