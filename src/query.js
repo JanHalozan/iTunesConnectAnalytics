@@ -21,7 +21,8 @@ module.exports.measures = {
   sales: 'sales',
   iap: 'iap',
   impressions: 'impressionsTotal',
-  impressionsUnique: 'impressionsTotalUnique'
+  impressionsUnique: 'impressionsTotalUnique',
+  pageViewUnique: 'pageViewUnique'
 };
 
 module.exports.dimension = {
@@ -95,6 +96,14 @@ var Query = function(appId, config) {
   this.apiURL = 'https://analytics.itunes.apple.com/analytics/api/v1';
 
   _.extend(this.config, config);
+  
+  if (this.config.group) {
+    this.config.group = _.extend({ 
+      metric: this.config.measures[0], 
+      rank: "" /*  TODO: Find out what this actually does. Not adding this errors, so defaulting it to blank */, 
+      limit: 200 
+    }, this.config.group);
+  }
 
   // Private
   this._time = null;
