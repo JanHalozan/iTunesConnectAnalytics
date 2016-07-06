@@ -14,6 +14,7 @@ module.exports.measures = {
   sessions: 'sessions',
   pageViews: 'pageViewCount',
   activeDevices: 'activeDevices',
+  activeLast30days: 'rollingActiveDevices',
   crashes: 'crashes',
   payingUsers: 'payingUsers',
   units: 'units',
@@ -24,8 +25,39 @@ module.exports.measures = {
 };
 
 module.exports.dimension = {
+  appVersion: 'appVersion',
   campaigns: 'campaignId',
+  device: 'platform',
+  platformVersion: 'platformVersion',
+  region: 'region',
+  territory: 'storefront',
   websites: 'domainReferrer'
+}
+
+module.exports.dimensionFilterKey = {
+  appPurchaseWeek: 'apppurchaseWeek',
+  apppurchaseDay: 'apppurchaseDay',
+  apppurchaseMonth: 'apppurchaseMonth',
+  appVersion: 'appVersion',
+  campaigns: 'campaignId',
+  device: 'platform',
+  platformVersion: 'platformVersion',
+  territory: 'storefront',
+  region: 'region',
+  websites: 'domainReferrer'
+}
+
+module.exports.platform = {
+  iPhone: 'iPhone',
+  iPad: 'iPad',
+  iPod: 'iPod',
+  appleTV: 'AppleTV'
+}
+
+module.exports.frequency = {
+  days: 'DAY',
+  weeks: 'WEEK',
+  months: 'MONTH'
 }
 
 module.exports.queryType = {
