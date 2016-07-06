@@ -6,6 +6,8 @@ A nodejs module wrapping the iTunes Connect Analytics API. Allows retrieving dat
 
 Original idea taken from [node-itunesconnect](https://github.com/stoprocent/node-itunesconnect). But that one only fetches `Sales  & Reports` which are outdated and contain a lot less info.
 
+_If you're building a dashboard for yourself or your company you might be better off with checking out [Databox](https://databox.com) (where I currently work) where we provide a super easy to set up iTunesConnect integration as well as a Google Play Developer Console integration._
+
 ## Installation
 
 `$ npm install itunesconnectanalytics`
