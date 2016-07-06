@@ -108,6 +108,33 @@ var query = new AnalyticsQuery.metrics(appId, {
 }).time(1, 'days');
 ```
 
+The full query can pretty much pull all data that can be accessed from the metrics tab of iTunes Analytics - 
+
+```js
+	var query = new AnalyticsQuery.metrics(appId, {
+		measures: [itc.measures.impressionsUnique /* First key required, Second key is optional for comparison */ , itc.measures.pageViewUnique],
+		frequency: itc.frequency.months,  /* Optional - default is days */
+		/* Grouping is optional - you can leave it out if you don't want data grouped by anything. This is same as selecting "view by" in Analytics */
+		group: {
+			metric: itc.measures.impressionsUnique /* This is optional - it has to be one of the metric you add in measures above, else it will error. 
+													If you leave it blank, we'll default it to the first measures, which is normally what you need. */, 
+			dimension: itc.dimension.territory,  /* this is the main thing you need to add when grouping */
+			rank: "", /* Optional - not really sure how it works, but else leave it alone and we will default it to blank. TODO: Find out what this actually does */
+			limit: 10 /* Optional - default is 200. TODO: Find out what this actually does */ 
+		},
+		/* Filtering is optional - you can leave it out if you don't want data filtered by anything. This is same as selecting filtered by in Analytics */
+		/* You can choose at most 2 filters if you don't use group by, and 1 filter if you use group by */
+
+		/* NOTE: every metric cannot be grouped/filtered by every dimension/dimensionFilterKey - for e.g. for app impressions, app version is irrelevant - using incompatible dimensions with metrics will lead to errored responses. This is currently not checked by this module and is your responsibility. When in doubt, try out the Analytics interface and see what
+		is allowed and what isn't. */
+		
+		dimensionFilters: [
+			{dimensionKey: itc.dimensionFilterKey.device, optionKeys: [itc.platform.iPad]}
+		]
+	}).date('2016-05-01', '2016-06-30'); //can be date or time like above. 
+```
+
+
 ##### Sources
 
 Metrics query is used to retrieve data under the __Sources__ section in analytics.
