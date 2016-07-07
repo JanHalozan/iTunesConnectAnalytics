@@ -14,18 +14,51 @@ module.exports.measures = {
   sessions: 'sessions',
   pageViews: 'pageViewCount',
   activeDevices: 'activeDevices',
+  activeLast30days: 'rollingActiveDevices',
   crashes: 'crashes',
   payingUsers: 'payingUsers',
   units: 'units',
   sales: 'sales',
   iap: 'iap',
   impressions: 'impressionsTotal',
-  impressionsUnique: 'impressionsTotalUnique'
+  impressionsUnique: 'impressionsTotalUnique',
+  pageViewUnique: 'pageViewUnique'
 };
 
 module.exports.dimension = {
+  appVersion: 'appVersion',
   campaigns: 'campaignId',
+  device: 'platform',
+  platformVersion: 'platformVersion',
+  region: 'region',
+  territory: 'storefront',
   websites: 'domainReferrer'
+}
+
+module.exports.dimensionFilterKey = {
+  appPurchaseWeek: 'apppurchaseWeek',
+  apppurchaseDay: 'apppurchaseDay',
+  apppurchaseMonth: 'apppurchaseMonth',
+  appVersion: 'appVersion',
+  campaigns: 'campaignId',
+  device: 'platform',
+  platformVersion: 'platformVersion',
+  territory: 'storefront',
+  region: 'region',
+  websites: 'domainReferrer'
+}
+
+module.exports.platform = {
+  iPhone: 'iPhone',
+  iPad: 'iPad',
+  iPod: 'iPod',
+  appleTV: 'AppleTV'
+}
+
+module.exports.frequency = {
+  days: 'DAY',
+  weeks: 'WEEK',
+  months: 'MONTH'
 }
 
 module.exports.queryType = {
@@ -63,6 +96,14 @@ var Query = function(appId, config) {
   this.apiURL = 'https://analytics.itunes.apple.com/analytics/api/v1';
 
   _.extend(this.config, config);
+  
+  if (this.config.group) {
+    this.config.group = _.extend({ 
+      metric: this.config.measures[0], 
+      rank: "" /*  TODO: Find out what this actually does. Not adding this errors, so defaulting it to blank */, 
+      limit: 200 
+    }, this.config.group);
+  }
 
   // Private
   this._time = null;
