@@ -88,7 +88,7 @@ Itunes.prototype.login = function(username, password) {
         self.options.errorCallback(error);
       } else {
         request.get({
-          url: self.options.baseURL + "/WebObjects/iTunesConnect.woa",
+          url: 'https://olympus.itunes.apple.com/v1/session', //self.options.baseURL + "/WebObjects/iTunesConnect.woa",
           followRedirect: false,	//We can't follow redirects, otherwise we will "miss" the itCtx cookie
           headers: {
             'Cookie': myAccount[0]
