@@ -117,6 +117,44 @@ Itunes.prototype.login = function(username, password) {
   });
 };
 
+Itunes.prototype.changeProvider = function(providerId, callback) {
+  var self = this;
+  async.whilst(function() {
+    return self._queue.paused;
+  }, function(callback) {
+    setTimeout(function() {
+      callback(null);
+    }, 500);
+  }, function(error) {
+    request.get({
+      url: 'https://analytics.itunes.apple.com/analytics/api/v1/settings/provider/' + providerId,
+      headers: self.getHeaders()
+    }, function(error, response, body) {
+      //extract the account info cookie
+      var myAccount = /myacinfo=.+?;/.exec(self._cookies);
+
+      if (myAccount == null || myAccount.length == 0) {
+        error = error || new Error('No account cookie :( Apple probably changed the login process');        
+      } else {
+        var cookies = response ? response.headers['set-cookie'] : null;
+
+        if (error || !(cookies && cookies.length)) {
+          error = error || new Error('There was a problem with loading the login page cookies.');
+        } else {
+          //extract the itCtx cookie
+          var itCtx = /itctx=.+?;/.exec(cookies);
+          if (itCtx == null || itCtx.length == 0) {
+            error = error || new Error('No itCtx cookie :( Apple probably changed the login process');
+          } else {
+            self._cookies = myAccount[0] + " " + itCtx[0];
+          }
+        }
+      }
+      callback(error);
+    });
+  });
+};
+
 Itunes.prototype.getApps = function(callback) {
   var url = 'https://analytics.itunes.apple.com/analytics/api/v1/app-info/app';
   this.getAPIURL(url, callback);
@@ -124,6 +162,11 @@ Itunes.prototype.getApps = function(callback) {
 
 Itunes.prototype.getSettings = function(callback) {
   var url = 'https://analytics.itunes.apple.com/analytics/api/v1/settings/all';
+  this.getAPIURL(url, callback);
+};
+
+Itunes.prototype.getUserInfo = function(callback) {
+  var url = 'https://analytics.itunes.apple.com/analytics/api/v1/settings/user-info';
   this.getAPIURL(url, callback);
 };
 
