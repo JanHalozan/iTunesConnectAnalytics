@@ -45,6 +45,7 @@ Itunes.prototype.executeRequest = function(task, callback) {
   request.post({
     uri: uri,
     headers: this.getHeaders(),
+    timeout: 300000 //5 minutes
     json: requestBody
   }, function(error, response, body) {
     if (!response.hasOwnProperty('statusCode')) {
@@ -134,7 +135,7 @@ Itunes.prototype.changeProvider = function(providerId, callback) {
       var myAccount = /myacinfo=.+?;/.exec(self._cookies);
 
       if (myAccount == null || myAccount.length == 0) {
-        error = error || new Error('No account cookie :( Apple probably changed the login process');        
+        error = error || new Error('No account cookie :( Apple probably changed the login process');
       } else {
         var cookies = response ? response.headers['set-cookie'] : null;
 
