@@ -45,7 +45,7 @@ Itunes.prototype.executeRequest = function(task, callback) {
   request.post({
     uri: uri,
     headers: this.getHeaders(),
-    timeout: 300000 //5 minutes
+    timeout: 300000, //5 minutes
     json: requestBody
   }, function(error, response, body) {
     if (!response.hasOwnProperty('statusCode')) {
