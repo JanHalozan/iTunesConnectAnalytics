@@ -33,6 +33,7 @@ module.exports.dimension = {
   region: 'region',
   territory: 'storefront',
   websites: 'domainReferrer',
+  apps: 'appReferrer',
   sourceType: 'source'
 }
 
