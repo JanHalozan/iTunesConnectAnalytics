@@ -97,6 +97,9 @@ var Query = function(appId, config) {
 
   _.extend(this.config, config);
   
+  if (!_.isArray(this.config.measures)) {
+    this.config.measures = [this.config.measures];
+  }
   if (this.config.group) {
     this.config.group = _.extend({ 
       metric: this.config.measures[0], 
