@@ -32,7 +32,9 @@ module.exports.dimension = {
   platformVersion: 'platformVersion',
   region: 'region',
   territory: 'storefront',
-  websites: 'domainReferrer'
+  websites: 'domainReferrer',
+  apps: 'appReferrer',
+  sourceType: 'source'
 }
 
 module.exports.dimensionFilterKey = {
