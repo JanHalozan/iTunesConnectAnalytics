@@ -232,5 +232,6 @@ module.exports.measures = query.measures;
 module.exports.dimension = query.dimension;
 module.exports.dimensionFilterKey = query.dimensionFilterKey;
 module.exports.platform = query.platform;
+module.exports.source = query.source;
 module.exports.frequency = query.frequency;
 module.exports.queryType = query.queryType;
