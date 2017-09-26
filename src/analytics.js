@@ -7,7 +7,7 @@ var moment = require('moment');
 var query = require('./query.js');
 var url = require('url');
 
-var Itunes = function(username, password, options) {
+function Itunes(username, password, options) {
   this.options = {
     baseURL: 'https://itunesconnect.apple.com',
     loginURL: 'https://idmsa.apple.com/appleauth/auth/signin',
@@ -16,32 +16,33 @@ var Itunes = function(username, password, options) {
     errorCallback: function(e) { console.log('Login failure: ' + e); },
     successCallback: function(d) { console.log('Login success.'); }
   };
-
+  
   _.extend(this.options, options);
-
-  // Private
+  
   this._cookies = [];
   this._queue = async.queue(
     this.executeRequest.bind(this),
     this.options.concurrentRequests
   );
   this._queue.pause();
-
+  
   if (typeof this.options['cookies'] !== 'undefined') {
     this._cookies = this.options.cookies;
     this._queue.resume();
-  } else {
+  } else if (username && password)  {
+    // TODO: remove auto login call, strange for a constructor
     this.login(username, password);
   }
+  
 };
 
 Itunes.prototype.executeRequest = function(task, callback) {
   var query = task.query;
   var completed = task.completed;
-
+  
   var requestBody = query.assembleBody();
   var uri = url.parse(query.apiURL + query.endpoint);
-
+  
   request.post({
     uri: uri,
     headers: this.getHeaders(),
@@ -49,74 +50,142 @@ Itunes.prototype.executeRequest = function(task, callback) {
     json: requestBody
   }, function(error, response, body) {
     if (!response.hasOwnProperty('statusCode')) {
-			error = new Error('iTunes Connect is not responding. The service may be temporarily offline.');
-			body = null;
-		} else if (response.statusCode == 401) {
-			error = new Error('This request requires authentication. Please check your username and password.');
-			body = null;
-		}
-
+      error = new Error('iTunes Connect is not responding. The service may be temporarily offline.');
+      body = null;
+    } else if (response.statusCode == 401) {
+      error = new Error('This request requires authentication. Please check your username and password.');
+      body = null;
+    }
+    
     completed(error, body);
     callback();
   });
 }
 
 Itunes.prototype.login = function(username, password) {
-  var self = this;
+  const self = this;
   request.post({
     url: this.options.loginURL,
     headers: {
       'Content-Type': 'application/json',
-      'X-Apple-Widget-Key': this.options.appleWidgetKey
+      'X-Apple-Widget-Key': this.options.appleWidgetKey,
+      'X-Requested-With': 'XMLHttpRequest'
     },
     json: {
       'accountName': username,
       'password': password,
       'rememberMe': false
     }
-  }, function(error, response, body) {
-    var cookies = response ? response.headers['set-cookie'] : null;
+  }, function (error, response, body) { 
+    self.handleLogin(error, response, body).then(r => { 
+      self.options.successCallback(r)
+    }).catch(e => {
+      self.options.errorCallback(e)
+    })
+  });
+};
 
+Itunes.prototype.handleLogin = function(error, response, body) {
+  const self = this;
+  return new Promise(function (successCallback, errorCallback) {
+    var cookies = response ? response.headers['set-cookie'] : null;
+    
     if (error || !(cookies && cookies.length)) {
       error = error || new Error('There was a problem with loading the login page cookies. Check login credentials.');
-      self.options.errorCallback(error);
+      errorCallback(error);
     } else {
       //extract the account info cookie
       var myAccount = /myacinfo=.+?;/.exec(cookies);
-
+      
       if (myAccount == null || myAccount.length == 0) {
+        const loginError = self.getLoginError(response);
         error = error || new Error('No account cookie :( Apple probably changed the login process');
-        self.options.errorCallback(error);
-      } else {
-        request.get({
-          url: 'https://olympus.itunes.apple.com/v1/session', //self.options.baseURL + "/WebObjects/iTunesConnect.woa",
-          followRedirect: false,	//We can't follow redirects, otherwise we will "miss" the itCtx cookie
-          headers: {
-            'Cookie': myAccount[0]
-          },
-        }, function(error, response, body) {
-          cookies = response ? response.headers['set-cookie'] : null;
-
-          if (error || !(cookies && cookies.length)) {
-            error = error || new Error('There was a problem with loading the login page cookies.');
-            self.options.errorCallback(error);
-          } else {
-            //extract the itCtx cookie
-            var itCtx = /itctx=.+?;/.exec(cookies);
-            if (itCtx == null || itCtx.length == 0) {
-              error = error || new Error('No itCtx cookie :( Apple probably changed the login process');
-              self.options.errorCallback(error);
-            } else {
-              self._cookies = myAccount[0] + " " + itCtx[0];
-              self.options.successCallback(self._cookies);
-              self._queue.resume();
+        if (loginError && loginError.id) {
+          error.loginError = loginError
+          if (loginError.id == LOGIN_ERROR_2FA) {
+            self.options.twoFactor = {
+              x_apple_id_session_id: response.headers["x-apple-id-session-id"],
+              scnt: response.headers["scnt"]
             }
-          }
-        });
+            
+            const headers = self.twoFactorHeaders()
+            request.get("https://idmsa.apple.com/appleauth/auth", {headers: headers}, function(error, response, body) {
+            if (error || !body) {
+              errorCallback(error)
+              return
+            }
+            body = JSON.parse(body)
+            // get devices
+            if (body.trustedDevices) {
+              self.options.twoFactor.trustedDevices = body.trustedDevices;
+            }
+            else if (body.trustedPhoneNumbers) {
+              self.options.twoFactor.trustedPhoneNumbers = body.trustedPhoneNumbers;
+            }
+            else {
+              // TODO: Send detailed error
+              errorCallback(null)
+              return
+            }
+            loginError.options = self.options;
+            var resultError = new Error("2fa")
+            resultError.loginError = loginError
+            
+            errorCallback(resultError)
+            return
+          })
+          return
+        }
+        
       }
+      errorCallback(error);
+    } 
+    else {
+      const account = myAccount[0]
+      
+      request.get({
+        url: 'https://olympus.itunes.apple.com/v1/session', //self.options.baseURL + "/WebObjects/iTunesConnect.woa",
+        followRedirect: false,	//We can't follow redirects, otherwise we will "miss" the itCtx cookie
+        headers: {Cookie: account},
+      }, function(error, response, body) {
+        var cookies = response ? response.headers['set-cookie'] : null;
+        
+        if (error || !(cookies && cookies.length)) {
+          error = error || new Error('There was a problem with loading the login page cookies.');
+          errorCallback(error);
+        } else {
+          // extract the itCtx cookie
+          var itCtx = /itctx=.+?;/.exec(cookies);
+          if (itCtx == null || itCtx.length == 0) {
+            error = error || new Error('No itCtx cookie :( Apple probably changed the login process');
+            errorCallback(error);
+          } else {
+            self._cookies = account + " " + itCtx[0];
+            successCallback(self._cookies);
+            self._queue.resume();  
+          }
+          successCallback(self._cookies);
+          self._queue.resume();
+        }
+      });
     }
-  });
-};
+  }
+})
+}
+
+Itunes.prototype.requestCodeOnDevice = function (identifier) {
+  const self = this
+  return new Promise(function(resolve, reject){
+    const headers = self.twoFactorHeaders()
+    request.put("https://idmsa.apple.com/appleauth/auth/verify/device/"+identifier+"/securitycode", {headers: headers}, function (error, response, body) {
+    if (error) {
+      reject(error)
+      return
+    }
+    resolve()
+  })
+})
+}
 
 Itunes.prototype.changeProvider = function(providerId, callback) {
   var self = this;
@@ -133,12 +202,12 @@ Itunes.prototype.changeProvider = function(providerId, callback) {
     }, function(error, response, body) {
       //extract the account info cookie
       var myAccount = /myacinfo=.+?;/.exec(self._cookies);
-
+      
       if (myAccount == null || myAccount.length == 0) {
         error = error || new Error('No account cookie :( Apple probably changed the login process');
       } else {
         var cookies = response ? response.headers['set-cookie'] : null;
-
+        
         if (error || !(cookies && cookies.length)) {
           error = error || new Error('There was a problem with loading the login page cookies.');
         } else {
@@ -155,6 +224,44 @@ Itunes.prototype.changeProvider = function(providerId, callback) {
     });
   });
 };
+
+Itunes.prototype.twoFactorHeaders = function() {
+  return {
+    "Accept" : "application/json",
+    "scnt" : this.options.twoFactor.scnt,
+    "X-Apple-ID-Session-Id" : this.options.twoFactor.x_apple_id_session_id,
+    "X-Apple-Widget-Key" : this.options.appleWidgetKey,
+  }
+}
+
+Itunes.prototype.validateTwoFactor = function(securityCode, deviceIdentifier) {
+  var self = this;
+  return new Promise(function (resolve, reject){
+    const headers = self.twoFactorHeaders()
+    
+    var url = 'https://idmsa.apple.com/appleauth/auth/verify/trusteddevice/securitycode';
+    var params = { headers: headers, json: true, body: {securityCode: {code: securityCode}} }
+    if (deviceIdentifier) {
+      url = "https://idmsa.apple.com/appleauth/auth/verify/device/"+ deviceIdentifier +"/securitycode"
+      params = {json: true, headers: headers, body:{code: securityCode}}
+    }
+    request.post(url, params, function(error, response, body) { 
+      // 204 --> Good // 4xx bad (401)
+      if (error || response.statusCode > 299) {
+        reject(error || new Error(response.statusCode))
+        return
+      }
+      self.handleLogin(error, response, body).then(r => { 
+        resolve(r)
+      }).catch(e => {
+        reject(e)
+      })
+      
+    // })
+  });
+})
+
+}; 
 
 Itunes.prototype.getApps = function(callback) {
   var url = 'https://analytics.itunes.apple.com/analytics/api/v1/app-info/app';
@@ -192,12 +299,12 @@ Itunes.prototype.getAPIURL = function(uri, callback) {
       headers: self.getHeaders()
     }, function(error, response, body) {
       if (!response.hasOwnProperty('statusCode')) {
-  			error = new Error('iTunes Connect is not responding. The service may be temporarily offline.');
-  			body = null;
-  		} else if (response.statusCode == 401) {
-  			error = new Error('This request requires authentication. Please check your username and password.');
-  			body = null;
-  		} else {
+        error = new Error('iTunes Connect is not responding. The service may be temporarily offline.');
+        body = null;
+      } else if (response.statusCode == 401) {
+        error = new Error('This request requires authentication. Please check your username and password.');
+        body = null;
+      } else {
         try {
           body = JSON.parse(body);
         } catch (e) {
@@ -215,7 +322,7 @@ Itunes.prototype.getCookies = function() {
 };
 
 Itunes.prototype.getHeaders = function() {
-  return {
+  var headers = {
     'Content-Type': 'application/json;charset=UTF-8',
     'Accept': 'application/json, text/plain, */*',
     'Origin': 'https://analytics.itunes.apple.com',
@@ -223,8 +330,54 @@ Itunes.prototype.getHeaders = function() {
     'Referer': 'https://analytics.itunes.apple.com/',
     'Cookie': this._cookies
   };
+  
+  return headers
 }
 
+Itunes.prototype.getLoginError = function(response) {
+  if (response.statusCode == loginErrors.LOGIN_ERROR_2FA.httpCode) {
+    return loginErrors.LOGIN_ERROR_2FA;
+  }
+  
+  // I hope for JS that there is better practice to perform this check 🙈
+  if (!response) { return null; }
+  if (!response.body) { return null; }
+  if (!response.body.serviceErrors) { return null; }
+  if (!response.body.serviceErrors[0]) { return null; }
+  if (!response.body.serviceErrors[0].code) { return null; }
+  
+  const itcErrorCode = response.body.serviceErrors[0].code
+  for (let errorId of Object.keys(loginErrors)) {
+    const error = loginErrors[errorId];
+    if (error.appleCode == itcErrorCode) {
+      return error;
+    }
+  }
+  return null;
+}
+
+const LOGIN_ERROR_LOCKED = "LOGIN_ERROR_LOCKED"
+const LOGIN_ERROR_BAD_CREDENTIALS = "LOGIN_ERROR_BAD_CREDENTIALS"
+const LOGIN_ERROR_2FA = "LOGIN_ERROR_2FA"
+const loginErrors = {
+  LOGIN_ERROR_LOCKED: {
+    id: LOGIN_ERROR_LOCKED, 
+    appleCode: "-20209", 
+    httpCode: 403, 
+  },
+  LOGIN_ERROR_BAD_CREDENTIALS: {
+    id: LOGIN_ERROR_BAD_CREDENTIALS,
+    httpCode: 401,
+    appleCode:"-20101",
+  },
+  LOGIN_ERROR_2FA: {
+    id: LOGIN_ERROR_2FA,
+    httpCode: 409,
+  }
+}
+
+
+module.exports.loginErrors = loginErrors
 module.exports.Itunes = Itunes;
 module.exports.AnalyticsQuery = query.AnalyticsQuery;
 module.exports.frequency = query.frequency;
