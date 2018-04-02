@@ -76,7 +76,7 @@ The `AnalyticsQuery` object is used to describe what kind of data should be retr
 
 Metrics are specified under `measures` key in query options. They can also be an array `measures: [itc.measures.units, itc.measures.sales]`.
 
-Available metris:
+Available metrics:
 
 - installs
 - sessions
