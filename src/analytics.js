@@ -46,7 +46,9 @@ Itunes.prototype.executeRequest = function(task, callback) {
     uri: uri,
     headers: this.getHeaders(),
     timeout: 300000, //5 minutes
-    json: requestBody
+    json: requestBody,
+    proxy: this.options.proxy,
+    agent: this.options.agent
   }, function(error, response, body) {
     if (!response.hasOwnProperty('statusCode')) {
 			error = new Error('iTunes Connect is not responding. The service may be temporarily offline.');
@@ -73,7 +75,9 @@ Itunes.prototype.login = function(username, password) {
       'accountName': username,
       'password': password,
       'rememberMe': false
-    }
+    },
+    proxy: this.options.proxy,
+    agent: this.options.agent
   }, function(error, response, body) {
     var cookies = response ? response.headers['set-cookie'] : null;
 
@@ -94,6 +98,8 @@ Itunes.prototype.login = function(username, password) {
           headers: {
             'Cookie': myAccount[0]
           },
+          proxy: this.options.proxy,
+          agent: this.options.agent
         }, function(error, response, body) {
           cookies = response ? response.headers['set-cookie'] : null;
 
@@ -129,7 +135,9 @@ Itunes.prototype.changeProvider = function(providerId, callback) {
   }, function(error) {
     request.get({
       url: 'https://analytics.itunes.apple.com/analytics/api/v1/settings/provider/' + providerId,
-      headers: self.getHeaders()
+      headers: self.getHeaders(),
+      proxy: this.options.proxy,
+      agent: this.options.agent
     }, function(error, response, body) {
       //extract the account info cookie
       var myAccount = /myacinfo=.+?;/.exec(self._cookies);
@@ -189,7 +197,9 @@ Itunes.prototype.getAPIURL = function(uri, callback) {
   }, function(error) {
     request.get({
       uri: uri,
-      headers: self.getHeaders()
+      headers: self.getHeaders(),
+      proxy: this.options.proxy,
+      agent: this.options.agent
     }, function(error, response, body) {
       if (!response.hasOwnProperty('statusCode')) {
   			error = new Error('iTunes Connect is not responding. The service may be temporarily offline.');
