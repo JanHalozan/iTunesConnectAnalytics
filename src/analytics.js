@@ -9,7 +9,7 @@ var url = require('url');
 
 var Itunes = function(username, password, options) {
   this.options = {
-    baseURL: 'https://itunesconnect.apple.com',
+    baseURL: 'https://appstoreconnect.apple.com/olympus/v1',
     loginURL: 'https://idmsa.apple.com/appleauth/auth/signin',
     appleWidgetKey: '22d448248055bab0dc197c6271d738c3',
     concurrentRequests: 2,
@@ -89,7 +89,7 @@ Itunes.prototype.login = function(username, password) {
         self.options.errorCallback(error);
       } else {
         request.get({
-          url: 'https://olympus.itunes.apple.com/v1/session', //self.options.baseURL + "/WebObjects/iTunesConnect.woa",
+          url: 'https://appstoreconnect.apple.com/olympus/v1/session', //self.options.baseURL + "/WebObjects/iTunesConnect.woa",
           followRedirect: false,	//We can't follow redirects, otherwise we will "miss" the itCtx cookie
           headers: {
             'Cookie': myAccount[0]
