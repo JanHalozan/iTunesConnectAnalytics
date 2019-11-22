@@ -2,7 +2,7 @@
 
 [![CircleCI](https://circleci.com/gh/JanHalozan/iTunesConnectAnalytics/tree/master.svg?style=shield)](https://circleci.com/gh/JanHalozan/iTunesConnectAnalytics/tree/master)
 
-A nodejs module wrapping the iTunes Connect Analytics API. Allows retrieving data available under the `App Analytics` section of iTunes Connect.
+A nodejs module wrapping the AppStore (formerly iTunes) Connect Analytics API. Allows retrieving data available under the `App Analytics` section of AppStore Connect.
 
 _If you're building a dashboard for yourself or your company you might be better off with checking out [Databox](https://databox.com) (where I currently work) where we provide a super easy to set up iTunesConnect integration as well as a Google Play Developer Console integration._
 
@@ -33,6 +33,23 @@ var instance = new Itunes(username, password, {
   }
 });
 ```
+
+### 2FA
+
+If you have 2 factor authentication enabled you'll be asked to enter the code when you call login first. Enter the code without any spaces and press enter. Rest will work normally.
+
+### Changing providers
+
+If you have multiple accounts linked to your Apple ID you can change them using the `changeProvider`. Example:
+
+```js
+const providerId = 'YOUR_PROVIDER_ID';
+instance.changeProvider('880281', function (error, data) {
+  //Done
+});
+```
+
+### Getting account information
 
 Getting available apps. Useful for getting app IDs needed for later queries. The field you're interested in is `adamId`.
 
