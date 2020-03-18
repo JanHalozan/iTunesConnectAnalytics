@@ -11,6 +11,7 @@ module.exports.frequency = {
 
 module.exports.measures = {
   installs: 'installs',
+  uninstalls: 'uninstalls',
   sessions: 'sessions',
   pageViews: 'pageViewCount',
   activeDevices: 'activeDevices',
