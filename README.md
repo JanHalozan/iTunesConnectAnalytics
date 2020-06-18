@@ -213,6 +213,28 @@ instance.request(query, function(error, result) {
   console.log(JSON.stringify(result, null, 2));
 });
 
+// Get sessions for each day in last month, but filtered to only the region = "US and Canada"
+var query = AnalyticsQuery.metrics('940584421', {
+  measures:  itc.measures.sessions,
+  dimensionFilters: [{ dimensionKey: itc.dimensionFilterKey.region,  optionKeys: [itc.region.usaCanada] }]
+}).time(1,itc.frequency.month);
+
+
+instance.request(query, function(error, result) {
+  console.log(JSON.stringify(result, null, 2));
+});
+
+// Get sessions for each day in last month, but filtered to only the territory = "Canada"
+var query = AnalyticsQuery.metrics('940584421', {
+  measures:  itc.measures.sessions,
+  dimensionFilters: [{ dimensionKey: itc.dimensionFilterKey.territory,  optionKeys: [itc.territory.canada] }]
+}).time(1,itc.frequency.month);
+
+
+instance.request(query, function(error, result) {
+  console.log(JSON.stringify(result, null, 2));
+});
+
 //Make an arbitrary GET request to the itunes connect API
 var url = 'https://analytics.itunes.apple.com/analytics/api/v1/settings/user-info'; //Get info about yourself :)
 instance.getAPIURL(url, function(error, result) {
