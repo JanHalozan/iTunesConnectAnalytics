@@ -4,7 +4,7 @@
 
 A nodejs module wrapping the AppStore (formerly iTunes) Connect Analytics API. Allows retrieving data available under the `App Analytics` section of AppStore Connect.
 
-_If you're building a dashboard for yourself or your company you might be better off with checking out [Databox](https://databox.com) (where I currently work) where we provide a super easy to set up iTunesConnect integration as well as a Google Play Developer Console integration._
+_If you're building a dashboard for yourself or your company you might be better off with checking out [Databox](https://databox.com) where we provide a super easy to set up iTunesConnect integration as well as a Google Play Developer Console integration._
 
 ## Installation
 
@@ -217,7 +217,7 @@ instance.request(query, function(error, result) {
 var query = AnalyticsQuery.metrics('940584421', {
   measures:  itc.measures.sessions,
   dimensionFilters: [{ dimensionKey: itc.dimensionFilterKey.region,  optionKeys: [itc.region.usaCanada] }]
-}).time(1,itc.frequency.month);
+}).time(1, itc.frequency.month);
 
 
 instance.request(query, function(error, result) {
@@ -228,7 +228,7 @@ instance.request(query, function(error, result) {
 var query = AnalyticsQuery.metrics('940584421', {
   measures:  itc.measures.sessions,
   dimensionFilters: [{ dimensionKey: itc.dimensionFilterKey.territory,  optionKeys: [itc.territory.canada] }]
-}).time(1,itc.frequency.month);
+}).time(1, itc.frequency.month);
 
 
 instance.request(query, function(error, result) {
