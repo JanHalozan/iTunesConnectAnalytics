@@ -238,5 +238,6 @@ module.exports.dimensionFilterKey = query.dimensionFilterKey;
 module.exports.region = query.region;
 module.exports.territory = query.territory;
 module.exports.platform = query.platform;
+module.exports.source = query.source;
 module.exports.frequency = query.frequency;
 module.exports.queryType = query.queryType;
