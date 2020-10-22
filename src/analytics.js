@@ -47,17 +47,13 @@ Itunes.prototype.executeRequest = function(task, callback) {
     uri: uri,
     headers: this.getHeaders(),
     timeout: 300000, //5 minutes
-    json: requestBody
-  }, function(error, response, body) {
-    if (!response.hasOwnProperty('statusCode')) {
-			error = new Error('iTunes Connect is not responding. The service may be temporarily offline.');
-			body = null;
-		} else if (response.statusCode == 401) {
-			error = new Error('This request requires authentication. Please check your username and password.');
-			body = null;
-		}
-
-    completed(error, body);
+    json: requestBody,
+    resolveWithFullResponse: true
+  }).then(response => {
+    completed(null, response.body)
+    callback();
+  }).catch(error => {
+    completed(error, null);
     callback();
   });
 }
