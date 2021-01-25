@@ -88,28 +88,37 @@ Itunes.prototype.login = function(username, password) {
       'Sec-Fetch-Mode': 'cors'
     };
 
-    //We need to get the 2fa code
-    return new Promise((resolve, reject) => {
-      const rl = readline.createInterface({input: process.stdin, output: process.stdout});
-      rl.question('Enter the 2FA code: ', (answer) => {
-        resolve(answer);
-      });
+    //Code send is triggered by GET request
+    return request.get({
+      url: this.options.loginURL,
+      headers: headers,
+      resolveWithFullResponse: true,
+    }).catch((res) => {
+      return Promise.reject(res);
     }).then((code) => {
-      return request.post({
-        url: `${this.options.loginURL}/verify/trusteddevice/securitycode`,
-        headers: headers,
-        json: {
-          securityCode: { code: code }
-        },
-        resolveWithFullResponse: true
-      }).then((res) => {
-        return request.get({
-          url: `${this.options.loginURL}/2sv/trust`,
-          headers: headers,
-          resolveWithFullResponse: true
+      //We need to get the 2fa code
+      return new Promise((resolve, reject) => {
+        const rl = readline.createInterface({input: process.stdin, output: process.stdout});
+        rl.question('Enter the 2FA code: ', (answer) => {
+          resolve(answer);
         });
-      }).catch((res) => {
-        return Promise.reject(res);
+      }).then((code) => {
+        return request.post({
+          url: `${this.options.loginURL}/verify/trusteddevice/securitycode`,
+          headers: headers,
+          json: {
+            securityCode: { code: code }
+          },
+          resolveWithFullResponse: true
+        }).then((res) => {
+          return request.get({
+            url: `${this.options.loginURL}/2sv/trust`,
+            headers: headers,
+            resolveWithFullResponse: true
+          });
+        }).catch((res) => {
+          return Promise.reject(res);
+        });
       });
     });
   }).then((response) => {
