@@ -68,6 +68,29 @@ Itunes.prototype.login = function(username, password) {
     json: {'accountName': username, 'password': password, 'rememberMe': false},
     resolveWithFullResponse: true
   }).catch((res) => {
+    if (res.statusCode === 412) {
+      const cookies = res.response.headers['set-cookie'];
+      const headers = {
+        'Content-Type': 'application/json',
+        Accept: 'application/json',
+        scnt: res.response.headers['scnt'],
+        'X-Apple-ID-Session-Id':
+          res.response.headers['x-apple-id-session-id'],
+        'X-Apple-Widget-Key': this.options.appleWidgetKey,
+        'X-Requested-With': 'XMLHttpRequest',
+        'X-Apple-Domain-Id': '3',
+        Cookie: cookies
+          .map((cookie) => cookie.split(';')[0])
+          .join('; '),
+      };
+      return request
+        .post({
+          url: `https://idmsa.apple.com/appleauth/auth/repair/complete`,
+          headers: headers,
+          resolveWithFullResponse: true,
+        });
+    }
+
     if (res.statusCode !== 409) {
       return Promise.reject(res);
     }
