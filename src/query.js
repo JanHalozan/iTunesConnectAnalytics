@@ -262,7 +262,7 @@ var Query = function(appId, config) {
   };
 
   this.adamId = appId;
-  this.apiURL = 'https://analytics.itunes.apple.com/analytics/api/v1';
+  this.apiURL = 'https://appstoreconnect.apple.com/analytics/api/v1';
 
   _.extend(this.config, config);
   
