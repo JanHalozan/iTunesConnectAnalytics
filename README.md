@@ -236,7 +236,7 @@ instance.request(query, function(error, result) {
 });
 
 //Make an arbitrary GET request to the itunes connect API
-var url = 'https://analytics.itunes.apple.com/analytics/api/v1/settings/user-info'; //Get info about yourself :)
+var url = 'https://appstoreconnect.apple.com/analytics/api/v1/settings/user-info'; //Get info about yourself :)
 instance.getAPIURL(url, function(error, result) {
   console.log(JSON.stringify(result, null, 2));
 });
