@@ -11,7 +11,7 @@ var Itunes = function(username, password, options) {
   this.options = {
     baseURL: 'https://appstoreconnect.apple.com/olympus/v1',
     loginURL: 'https://idmsa.apple.com/appleauth/auth',
-    settingsURL: 'https://analytics.itunes.apple.com/analytics/api/v1',
+    settingsURL: 'https://appstoreconnect.apple.com/analytics/api/v1',
     appleWidgetKey: 'e0b80c3bf78523bfe80974d320935bfa30add02e1bff88ec2166c6bd5a706c42',
     concurrentRequests: 2,
     errorCallback: function(e) { console.log('Login failure: ' + e); },
@@ -47,17 +47,13 @@ Itunes.prototype.executeRequest = function(task, callback) {
     uri: uri,
     headers: this.getHeaders(),
     timeout: 300000, //5 minutes
-    json: requestBody
-  }, function(error, response, body) {
-    if (!response.hasOwnProperty('statusCode')) {
-			error = new Error('iTunes Connect is not responding. The service may be temporarily offline.');
-			body = null;
-		} else if (response.statusCode == 401) {
-			error = new Error('This request requires authentication. Please check your username and password.');
-			body = null;
-		}
-
-    completed(error, body);
+    json: requestBody,
+    resolveWithFullResponse: true
+  }).then(response => {
+    completed(null, response.body)
+    callback();
+  }).catch(error => {
+    completed(error, null);
     callback();
   });
 }
@@ -72,6 +68,29 @@ Itunes.prototype.login = function(username, password) {
     json: {'accountName': username, 'password': password, 'rememberMe': false},
     resolveWithFullResponse: true
   }).catch((res) => {
+    if (res.statusCode === 412) {
+      const cookies = res.response.headers['set-cookie'];
+      const headers = {
+        'Content-Type': 'application/json',
+        Accept: 'application/json',
+        scnt: res.response.headers['scnt'],
+        'X-Apple-ID-Session-Id':
+          res.response.headers['x-apple-id-session-id'],
+        'X-Apple-Widget-Key': this.options.appleWidgetKey,
+        'X-Requested-With': 'XMLHttpRequest',
+        'X-Apple-Domain-Id': '3',
+        Cookie: cookies
+          .map((cookie) => cookie.split(';')[0])
+          .join('; '),
+      };
+      return request
+        .post({
+          url: `https://idmsa.apple.com/appleauth/auth/repair/complete`,
+          headers: headers,
+          resolveWithFullResponse: true,
+        });
+    }
+
     if (res.statusCode !== 409) {
       return Promise.reject(res);
     }
