@@ -32,7 +32,7 @@ var Itunes = function(username, password, options, code) {
     this._cookies = this.options.cookies;
     this._queue.resume();
   } else {
-    this.login(username, password, pin);
+    this.login(username, password, code);
   }
 };
 
