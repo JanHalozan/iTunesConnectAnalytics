@@ -7,7 +7,7 @@ const url = require('url');
 const readline = require('readline');
 const query = require('./query.js');
 
-var Itunes = function(username, password, options) {
+var Itunes = function(username, password, options, code) {
   this.options = {
     baseURL: 'https://appstoreconnect.apple.com/olympus/v1',
     loginURL: 'https://idmsa.apple.com/appleauth/auth',
@@ -32,7 +32,7 @@ var Itunes = function(username, password, options) {
     this._cookies = this.options.cookies;
     this._queue.resume();
   } else {
-    this.login(username, password);
+    this.login(username, password, code);
   }
 };
 
@@ -58,7 +58,7 @@ Itunes.prototype.executeRequest = function(task, callback) {
   });
 }
 
-Itunes.prototype.login = function(username, password) {
+Itunes.prototype.login = function(username, password, code) {
   request.post({
     url: `${this.options.loginURL}/signin`,
     headers: {
@@ -109,10 +109,7 @@ Itunes.prototype.login = function(username, password) {
 
     //We need to get the 2fa code
     return new Promise((resolve, reject) => {
-      const rl = readline.createInterface({input: process.stdin, output: process.stdout});
-      rl.question('Enter the 2FA code: ', (answer) => {
-        resolve(answer);
-      });
+      resolve(code);
     }).then((code) => {
       return request.post({
         url: `${this.options.loginURL}/verify/trusteddevice/securitycode`,
