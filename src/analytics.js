@@ -4,7 +4,6 @@ const _ = require('underscore');
 const request = require('request-promise-native');
 const async = require('async');
 const url = require('url');
-const readline = require('readline');
 const query = require('./query.js');
 
 var Itunes = function(username, password, options, code) {
